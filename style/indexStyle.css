@@ -13,3 +13,21 @@
 {
 	margin-left: 1%;
 }
+
+body
+{
+	margin:15%;
+}
+
+.cardView
+{
+	border-width: 1px;
+	border-style: solid;
+	border-color: #C0C0C0;
+	padding-left: 3%;
+}
+
+#listView
+{
+	padding:3%;s
+}
