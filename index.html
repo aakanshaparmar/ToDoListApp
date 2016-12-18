@@ -22,7 +22,7 @@
 			</p>
 
 			<p class="form-items" style="visibility: hidden ">
-				Due Date: <input type="date" id="list-item-due-date" visibility ="hidden" style = "color: #C0C0C0">
+				Due Date: <input type="date" id="list-item-due-date" visibility ="hidden" style = "color: #C0C0C0" onfocus = "removeDefaultValue(this)">
 			</p>
 			<p class="form-items" style="visibility: hidden ">
 				Additional Notes: <input type="text" id="list-item-note" value = "Add note" onfocus = "removeDefaultValue(this)" onfocusout = "restoreDefaultValue(3)"  style = "color: #C0C0C0">
@@ -49,11 +49,10 @@
 			//Function to remove default value from input fields when user begins to add entries
 			function removeDefaultValue(element)
 			{
-				if (element.value == "Enter task details" || element.value == "Enter due date" || element.value == "Add note")
-				{
+				
 					element.value = "";
 					element.style.color="black";
-				}
+				
 			}
 
 			//Function to expand form when user presses button - Enter More Details
@@ -131,12 +130,12 @@
 				itemCount = itemCount+1;
 				toDoListJsonObj['listItems'].push({"serialNo": itemCount, "taskName": newListItem.taskName, "dueDate": newListItem.dueDate, "taskNotes": newListItem.taskNotes, "taskStatus": "new" });
 
-				refreshListView(itemCount);
+				addToListView(itemCount);
 			}
 
 			
-			//Function to refresh to-do  list view whenever changes are made
-			function refreshListView(itemCount)
+			//Function to add to to-do  list view whenever new entries are made 
+			function addToListView(itemCount)
 			{
 
 				var divElement = document.createElement("DIV");
@@ -152,18 +151,13 @@
 				moreButton.class = itemCount;
 				moreButton.setAttribute("onclick", "showMoreTaskDetails(this)");
 				moreButton.innerHTML = "V";
+				moreButton.id=itemCount+"moreButton";
 				
 				var taskName = document.createTextNode(toDoListJsonObj.listItems[itemCount].taskName);
-				var dueDate = document.createTextNode(toDoListJsonObj.listItems[itemCount].dueDate);
-				var taskNotes = document.createTextNode(toDoListJsonObj.listItems[itemCount].taskNotes);
-				var taskStatus = document.createTextNode(toDoListJsonObj.listItems[itemCount].taskStatus);
 
 
 				divElement.appendChild(checkBox);
 				divElement.appendChild(taskName);
-				divElement.appendChild(dueDate);
-				divElement.appendChild(taskNotes);
-				divElement.appendChild(taskStatus);
 				divElement.appendChild(moreButton);
 
 				document.getElementById("listView").appendChild(divElement);
@@ -177,11 +171,13 @@
 				{
 					var divId = "itemListNo"+checkBoxElement.class;
 					document.getElementById(divId).style.textDecoration="line-through";
+					toDoListJsonObj.listItems[checkBoxElement.class].taskStatus="done"
 				}
 				else
 				{
 					var divId = "itemListNo"+checkBoxElement.class;
 					document.getElementById(divId).style.textDecoration="none";
+					toDoListJsonObj.listItems[checkBoxElement.class].taskStatus="new"
 				}
 			}
 
@@ -204,13 +200,48 @@
 
 			function showMoreTaskDetails(buttonElement)
 			{
+				buttonElement.style.visibility="hidden";
+
 				var taskId = buttonElement.class; 
-				console.log("HELLO");
+				
+				var divElement = document.createElement("DIV");
+				divElement.id="detailsListNo"+itemCount;
 
+				var dueDate = document.createTextNode(toDoListJsonObj.listItems[itemCount].dueDate);
+				var taskNotes = document.createTextNode(toDoListJsonObj.listItems[itemCount].taskNotes);
 
+				var hideButton = document.createElement("BUTTON");
+				hideButton.class = itemCount;
+				hideButton.setAttribute("onclick", "hideTaskDetails(this)");
+				hideButton.innerHTML = "Hide";
+				hideButton.id=itemCount+"hideButton";
+
+				divElement.appendChild(dueDate);
+				divElement.appendChild(taskNotes);
+				divElement.appendChild(hideButton);
+				
+				var divId = "itemListNo"+taskId;
+
+				document.getElementById(divId).appendChild(divElement);
+				
+				
 			}
 
-			
+			function hideTaskDetails(buttonElement)
+			{
+				var taskId = buttonElement.class; 
+				var childDivElement = "detailsListNo"+itemCount; 
+				var parentDivElement = "itemListNo"+itemCount;
+
+				var child= document.getElementById(childDivElement);
+				var parent = document.getElementById(parentDivElement);
+
+				parent.removeChild(child);
+
+				var moreButtonId = buttonElement.class+"moreButton";
+				document.getElementById(moreButtonId).style.visibility="visible";
+
+			}
 
 		</script>
 
