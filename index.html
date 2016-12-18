@@ -1,5 +1,8 @@
 <html> 
-	<head> </title> To-Do List </title> </head>
+	<head> 
+		<link rel="stylesheet" type="text/css" href="style/indexStyle.css">
+		</title> To-Do List </title> 
+	</head>
 
 	<body>
 
@@ -7,6 +10,9 @@
 		<form> 
 
 			<p>
+				<span id="inputErrorAlert" class="redTextColor"> Please Enter Task Name !!!!!! </span>
+				<br>
+				Task Name:<span class="redTextColor">*</span>
 				<input type="text" id="list-item-name" value = "Enter task details" onfocus = "removeDefaultValue(this)" onfocusout = "addDefaultValue(this,1)" style = "color: #C0C0C0"> 
 			</p>
 
@@ -16,19 +22,27 @@
 			</p>
 
 			<p class="form-items" style="visibility: hidden ">
-				<input type="text" id="list-item-due-date" value = "Enter due date" onfocus = "removeDefaultValue(this)" onfocusout = "addDefaultValue(this,2)" visibility ="hidden" style = "color: #C0C0C0">
+				Due Date: <input type="date" id="list-item-due-date" onfocus = "removeDefaultValue(this)" onfocusout = "addDefaultValue(this,2)" visibility ="hidden" style = "color: #C0C0C0">
 			</p>
 			<p class="form-items" style="visibility: hidden ">
-				<input type="text" id="list-item-note" value = "Add note" onfocus = "removeDefaultValue(this)" onfocusout = "addDefaultValue(this,3)"  style = "color: #C0C0C0">
+				Additional Notes: <input type="text" id="list-item-note" value = "Add note" onfocus = "removeDefaultValue(this)" onfocusout = "addDefaultValue(this,3)"  style = "color: #C0C0C0">
 			</p>
 
 			<button type = "button" id="save2" onClick="saveListEntry()" style = "visibility: hidden">  Save </button>
+			<button type = "button" id="hide" onClick="hideVisibleFields()" style = "visibility: hidden">  Hide </button>
 
 			
 
 		</form> 
 
 		<script>
+
+			var toDoListJsonObj = { "list-items": [
+									{"taskName":"", "dueDate":"", "taskNotes":""}
+
+								  ]};
+
+			var itemCount = 0;
 
 			//Function to remove default value from input fields when user begins to add entries
 			function removeDefaultValue(element)
@@ -72,8 +86,23 @@
 				}
 
 				document.getElementById("initialButtonSet").innerHTML= "";
-
 				document.getElementById("save2").style.visibility="visible";
+				document.getElementById("hide").style.visibility="visible";
+			}
+
+			//Function to Collapse form when user presses button - Hide
+			function hideVisibleFields()
+			{
+				var formItemList = document.getElementsByClassName("form-items");
+				for(var i = 0; i<formItemList.length; i++)
+				{
+					formItemList[i].style.visibility="hidden";
+				}
+
+				document.getElementById("initialButtonSet").innerHTML = "<button type = 'button' id='save1' onClick='saveListEntry()''>  Save </button><button type='button' id='moreDetailsButton' onClick='displayHiddenFields()'> Enter More Details</button>"; 
+
+				document.getElementById("save2").style.visibility="hidden";
+				document.getElementById("hide").style.visibility="hidden";
 			}
 
 			//Function to save new entry to JS and JSON object
@@ -84,11 +113,21 @@
 				var dDate = document.getElementById("list-item-due-date").value;
 				var tNote = document.getElementById("list-item-note").value;
 				var newListItem = {taskName : tName, dueDate : dDate, taskNote : tNote};
-				var r = window.confirm ("You entered task - "+tName+" with due date - "+dDate+" and extra notes - "+tNote);
-				if(r==1)
+
+				if(tName=="" || tName=="Enter task details")
 				{
-					addtoJSONObject();
+					document.getElementById("inputErrorAlert").style.visibility="visible";
 				}
+				else
+				{
+					var r = window.confirm ("You entered task - "+tName+" with due date - "+dDate+" and extra notes - "+tNote);	
+					if(r==1)
+					{
+						addtoJSONObject(newListItem);
+					}
+				}
+				
+				
 			}
 
 			//Function to refresh to-do  list view whenever changes are made
@@ -98,8 +137,18 @@
 			}
 
 			//Function to add JS Object to existing JSON Object 
-			function addtoJSONObject()
+			function addtoJSONObject(newListItem)
 			{
+				var toDoListJsonObj = { "list-items": [
+									{"taskName":"", "dueDate":"", "taskNotes":""}
+
+								  ]};
+
+
+				itemCount = itemCount+1;
+				toDoListJsonObj.list-items[itemCount].taskName = newListItem.taskName;
+				toDoListJsonObj.list-items[itemCount].dueDate=newListItem.dueDate;
+				toDoListJsonObj.list-items[itemCount].taskNotes=newListItem.taskNotes;
 				
 			}
 

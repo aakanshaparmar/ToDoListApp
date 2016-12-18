@@ -1,0 +1,15 @@
+#inputErrorAlert 
+{
+	visibility: hidden;
+	font-weight: bold;
+}
+
+.redTextColor
+{
+	color: #FF0000;
+}
+
+#moreDetailsButton
+{
+	margin-left: 1%;
+}
