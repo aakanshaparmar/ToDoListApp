@@ -13,7 +13,7 @@
 				<span id="inputErrorAlert" class="redTextColor"> Please Enter Task Name !!!!!! </span>
 				<br>
 				Task Name:<span class="redTextColor">*</span>
-				<input type="text" id="list-item-name" value = "Enter task details" onfocus = "removeDefaultValue(this)" onfocusout = "addDefaultValue(this,1)" style = "color: #C0C0C0"> 
+				<input type="text" id="list-item-name" value = "Enter task details" onfocus = "removeDefaultValue(this)" onfocusout = "restoreDefaultValue(1)" style = "color: #C0C0C0"> 
 			</p>
 
 			<p id="initialButtonSet">
@@ -22,23 +22,25 @@
 			</p>
 
 			<p class="form-items" style="visibility: hidden ">
-				Due Date: <input type="date" id="list-item-due-date" onfocus = "removeDefaultValue(this)" onfocusout = "addDefaultValue(this,2)" visibility ="hidden" style = "color: #C0C0C0">
+				Due Date: <input type="date" id="list-item-due-date" visibility ="hidden" style = "color: #C0C0C0">
 			</p>
 			<p class="form-items" style="visibility: hidden ">
-				Additional Notes: <input type="text" id="list-item-note" value = "Add note" onfocus = "removeDefaultValue(this)" onfocusout = "addDefaultValue(this,3)"  style = "color: #C0C0C0">
+				Additional Notes: <input type="text" id="list-item-note" value = "Add note" onfocus = "removeDefaultValue(this)" onfocusout = "restoreDefaultValue(3)"  style = "color: #C0C0C0">
 			</p>
 
 			<button type = "button" id="save2" onClick="saveListEntry()" style = "visibility: hidden">  Save </button>
-			<button type = "button" id="hide" onClick="hideVisibleFields()" style = "visibility: hidden">  Hide </button>
-
-			
+			<button type = "button" id="hide" onClick="hideVisibleFields()" style = "visibility: hidden">  Hide </button>			
 
 		</form> 
 
+		<p id="listView">
+
+		</p>
+
 		<script>
 
-			var toDoListJsonObj = { "list-items": [
-									{"taskName":"", "dueDate":"", "taskNotes":""}
+			var toDoListJsonObj = { "listItems": [
+									{"serialNo":"0", "taskName":"", "dueDate":"", "taskNotes":"", "taskStatus": ""}
 
 								  ]};
 
@@ -51,28 +53,6 @@
 				{
 					element.value = "";
 					element.style.color="black";
-				}
-			}
-
-			//Function to add default values to input fields when user leaves input field empty
-			function addDefaultValue(element, index)
-			{
-				if (element.value == "")
-				{
-					element.style.color="#C0C0C0";
-					if(index==1)
-					{
-						element.value = "Enter task details";
-					}
-					else if (index==2)
-					{
-						element.value = "Enter due date";
-					}
-					else 
-					{
-						element.value ="Add note";
-					}
-					
 				}
 			}
 
@@ -110,47 +90,127 @@
 			{
 				//Save Entry to JS Object 
 				var tName = document.getElementById("list-item-name").value;
-				var dDate = document.getElementById("list-item-due-date").value;
-				var tNote = document.getElementById("list-item-note").value;
-				var newListItem = {taskName : tName, dueDate : dDate, taskNote : tNote};
 
+				var dDate = document.getElementById("list-item-due-date").value;
+				
+				var tNote;
+				if (document.getElementById("list-item-note").value == "Add note")
+				{
+					tNote = "";
+				}
+				else
+				{
+					tNote = document.getElementById("list-item-note").value;
+				}
+
+				var newListItem = {taskName : tName, dueDate : dDate, taskNotes : tNote};
+ 
+				
 				if(tName=="" || tName=="Enter task details")
 				{
 					document.getElementById("inputErrorAlert").style.visibility="visible";
 				}
-				else
+
+				else 
 				{
+					var r = restoreDefaultValue("0");
 					var r = window.confirm ("You entered task - "+tName+" with due date - "+dDate+" and extra notes - "+tNote);	
+					
 					if(r==1)
 					{
 						addtoJSONObject(newListItem);
 					}
 				}
-				
-				
-			}
-
-			//Function to refresh to-do  list view whenever changes are made
-			function refreshListView()
-			{
 
 			}
+
 
 			//Function to add JS Object to existing JSON Object 
 			function addtoJSONObject(newListItem)
 			{
-				var toDoListJsonObj = { "list-items": [
-									{"taskName":"", "dueDate":"", "taskNotes":""}
-
-								  ]};
-
-
 				itemCount = itemCount+1;
-				toDoListJsonObj.list-items[itemCount].taskName = newListItem.taskName;
-				toDoListJsonObj.list-items[itemCount].dueDate=newListItem.dueDate;
-				toDoListJsonObj.list-items[itemCount].taskNotes=newListItem.taskNotes;
-				
+				toDoListJsonObj['listItems'].push({"serialNo": itemCount, "taskName": newListItem.taskName, "dueDate": newListItem.dueDate, "taskNotes": newListItem.taskNotes, "taskStatus": "new" });
+
+				refreshListView(itemCount);
 			}
+
+			
+			//Function to refresh to-do  list view whenever changes are made
+			function refreshListView(itemCount)
+			{
+
+				var divElement = document.createElement("DIV");
+				divElement.id="itemListNo"+itemCount;
+				
+				var checkBox = document.createElement("INPUT");
+				checkBox.type = "checkbox";
+				checkBox.name = "listItemCheckBox";
+				checkBox.class = itemCount;
+				checkBox.setAttribute("onClick", "changeTaskStatus(this)");
+
+				var moreButton = document.createElement("BUTTON");
+				moreButton.class = itemCount;
+				moreButton.setAttribute("onclick", "showMoreTaskDetails(this)");
+				moreButton.innerHTML = "V";
+				
+				var taskName = document.createTextNode(toDoListJsonObj.listItems[itemCount].taskName);
+				var dueDate = document.createTextNode(toDoListJsonObj.listItems[itemCount].dueDate);
+				var taskNotes = document.createTextNode(toDoListJsonObj.listItems[itemCount].taskNotes);
+				var taskStatus = document.createTextNode(toDoListJsonObj.listItems[itemCount].taskStatus);
+
+
+				divElement.appendChild(checkBox);
+				divElement.appendChild(taskName);
+				divElement.appendChild(dueDate);
+				divElement.appendChild(taskNotes);
+				divElement.appendChild(taskStatus);
+				divElement.appendChild(moreButton);
+
+				document.getElementById("listView").appendChild(divElement);
+
+			}
+
+			//Function to change status of task when checkbox is clicked 
+			function changeTaskStatus(checkBoxElement)
+			{
+				if(checkBoxElement.checked)
+				{
+					var divId = "itemListNo"+checkBoxElement.class;
+					document.getElementById(divId).style.textDecoration="line-through";
+				}
+				else
+				{
+					var divId = "itemListNo"+checkBoxElement.class;
+					document.getElementById(divId).style.textDecoration="none";
+				}
+			}
+
+			//Function to restore default value of textfields if they are left empty or once the input has been submitted 
+			function restoreDefaultValue(index)
+			{
+					if((index==1 & document.getElementById("list-item-name").value=="") || index==0)
+					{
+						document.getElementById("list-item-name").value = "Enter task details";
+						document.getElementById("list-item-name").style.color = "#C0C0C0";
+					}
+
+					if((index==3 & document.getElementById("list-item-name").value=="") ||  index==0)
+					{	
+						document.getElementById("list-item-note").value = "Add note";
+						document.getElementById("list-item-note").style.color = "#C0C0C0";
+					}
+
+			}
+
+			function showMoreTaskDetails(buttonElement)
+			{
+				var taskId = buttonElement.class; 
+				console.log("HELLO");
+
+
+			}
+
+			
 
 		</script>
 
