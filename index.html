@@ -1,0 +1,111 @@
+<html> 
+	<head> </title> To-Do List </title> </head>
+
+	<body>
+
+		<!-- Form to enter new items to the to - do list --> 
+		<form> 
+
+			<p>
+				<input type="text" id="list-item-name" value = "Enter task details" onfocus = "removeDefaultValue(this)" onfocusout = "addDefaultValue(this,1)" style = "color: #C0C0C0"> 
+			</p>
+
+			<p id="initialButtonSet">
+				<button type = "button" id="save1" onClick="saveListEntry()">  Save </button>
+				<button type="button" id="moreDetailsButton" onClick="displayHiddenFields()"> Enter More Details</button>
+			</p>
+
+			<p class="form-items" style="visibility: hidden ">
+				<input type="text" id="list-item-due-date" value = "Enter due date" onfocus = "removeDefaultValue(this)" onfocusout = "addDefaultValue(this,2)" visibility ="hidden" style = "color: #C0C0C0">
+			</p>
+			<p class="form-items" style="visibility: hidden ">
+				<input type="text" id="list-item-note" value = "Add note" onfocus = "removeDefaultValue(this)" onfocusout = "addDefaultValue(this,3)"  style = "color: #C0C0C0">
+			</p>
+
+			<button type = "button" id="save2" onClick="saveListEntry()" style = "visibility: hidden">  Save </button>
+
+			
+
+		</form> 
+
+		<script>
+
+			//Function to remove default value from input fields when user begins to add entries
+			function removeDefaultValue(element)
+			{
+				if (element.value == "Enter task details" || element.value == "Enter due date" || element.value == "Add note")
+				{
+					element.value = "";
+					element.style.color="black";
+				}
+			}
+
+			//Function to add default values to input fields when user leaves input field empty
+			function addDefaultValue(element, index)
+			{
+				if (element.value == "")
+				{
+					element.style.color="#C0C0C0";
+					if(index==1)
+					{
+						element.value = "Enter task details";
+					}
+					else if (index==2)
+					{
+						element.value = "Enter due date";
+					}
+					else 
+					{
+						element.value ="Add note";
+					}
+					
+				}
+			}
+
+			//Function to expand form when user presses button - Enter More Details
+			function displayHiddenFields()
+			{
+				var formItemList = document.getElementsByClassName("form-items");
+				for(var i = 0; i<formItemList.length; i++)
+				{
+					formItemList[i].style.visibility="visible";
+				}
+
+				document.getElementById("initialButtonSet").innerHTML= "";
+
+				document.getElementById("save2").style.visibility="visible";
+			}
+
+			//Function to save new entry to JS and JSON object
+			function saveListEntry()
+			{
+				//Save Entry to JS Object 
+				var tName = document.getElementById("list-item-name").value;
+				var dDate = document.getElementById("list-item-due-date").value;
+				var tNote = document.getElementById("list-item-note").value;
+				var newListItem = {taskName : tName, dueDate : dDate, taskNote : tNote};
+				var r = window.confirm ("You entered task - "+tName+" with due date - "+dDate+" and extra notes - "+tNote);
+				if(r==1)
+				{
+					addtoJSONObject();
+				}
+			}
+
+			//Function to refresh to-do  list view whenever changes are made
+			function refreshListView()
+			{
+
+			}
+
+			//Function to add JS Object to existing JSON Object 
+			function addtoJSONObject()
+			{
+				
+			}
+
+		</script>
+
+
+
+    </body>
+</html>	
